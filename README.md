@@ -25,18 +25,10 @@ Il progetto prevede diversi agenti specializzati, ognuno responsabile di una spe
 | Creative Agent | Generazione di idee per meme |
 | Evaluator Agent | Valutazione delle idee generate |
 
-## Tecnologie
-
-- Python
-- LangGraph
-- OpenAI API
-- Google Gemini
-- Tavily
-- Reddit API
 
 ## Stato del progetto
 
-**In sviluppo.**
+*Progetto personale in continuo sviluppo.*
 
 È stata realizzata una prima versione della pipeline, con agenti Python separati e uno stato condiviso per gestire i dati tra le diverse fasi.
 
@@ -70,5 +62,3 @@ Le attività successive prevedono l'integrazione di LangGraph, dei servizi di ri
 
 5. Creare il file `.env` partendo da `.env.example` e inserire le proprie chiavi API quando necessarie.
 
-
-*Progetto personale in continuo sviluppo.*

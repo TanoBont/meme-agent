@@ -9,7 +9,6 @@ def verify_trends(state):
 
     for trend in state["trends"]:
 
-        # Simuliamo la verifica del trend
         verified_trend = {
             "topic": trend["topic"],
             "description": trend["description"],
@@ -18,7 +17,4 @@ def verify_trends(state):
 
         verified_trends.append(verified_trend)
 
-    # Aggiorniamo lo State
-    state["verified_trends"] = verified_trends
-
-    return state
+    return verified_trends

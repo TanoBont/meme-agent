@@ -21,11 +21,15 @@ def research_node(state: MemeAgentState):
     }
 
 def verification_node(state: MemeAgentState):
-    """
-    Nodo che verifica i trend individuati.
-    """
+    verified_trends = verify_trends(state)
 
-    return verify_trends(state)
+    print("\nDEBUG VERIFICATION NODE")
+    print("Tipo:", type(verified_trends))
+    print("Contenuto:", verified_trends)
+
+    return {
+        "verified_trends": verified_trends
+    }
 
 def ranking_node(state: MemeAgentState):
     """
