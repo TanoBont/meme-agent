@@ -1,40 +1,62 @@
 
-from app.agents.research import research_trends
-from app.agents.verification import verify_trends
-from app.agents.ranking import rank_trends
-from app.agents.creative import generate_meme_ideas
-from app.agents.evaluator import evaluate_meme_ideas
+from app.graph.workflow import graph
 from app.graph.state import MemeAgentState
 
-# Creiamo lo State iniziale
-state: MemeAgentState = {
+
+# Inizializziamo lo State
+initial_state: MemeAgentState = {
     "trends": [],
     "verified_trends": [],
     "ranked_trends": [],
     "meme_ideas": []
 }
 
-# Fase 1: ricerca
-state["trends"] = research_trends()
+# Eseguiamo il grafo
+result = graph.invoke(initial_state)
 
-# Fase 2: verifica
-state = verify_trends(state)
+# Visualizziamo i trend individuati
+print("\nTREND INDIVIDUATI\n")
 
-# Fase 3: classificazione
-state = rank_trends(state)
+for trend in result["trends"]:
+    print(f"Argomento: {trend['topic']}")
+    print(f"Descrizione: {trend['description']}")
+    print("-" * 40)
 
-# Fase 4: generazione delle idee
-state = generate_meme_ideas(state)
 
-# Fase 5: valutazione delle idee
-state = evaluate_meme_ideas(state)
+# Visualizziamo i trend verificati
+print("\nTREND VERIFICATI\n")
 
-# Visualizziamo i risultati finali
-print("\nVALUTAZIONE DELLE IDEE:\n")
+for trend in result["verified_trends"]:
+    print(f"Argomento: {trend['topic']}")
+    print(f"Verificato: {trend['verified']}")
+    print("-" * 40)
 
-for idea in state["meme_ideas"]:
+# Visualizziamo i trend classificati
+print("\nTREND CLASSIFICATI\n")
+
+for trend in result["ranked_trends"]:
+    print(f"Argomento: {trend['topic']}")
+    print(f"Attualità: {trend['actuality']}/10")
+    print(f"Interesse: {trend['interest']}/10")
+    print(f"Potenziale umoristico: {trend['humor']}/10")
+    print(f"Punteggio complessivo: {trend['score']}/10")
+    print("-" * 40)
+    
+# Visualizziamo le idee generate
+print("\nIDEE PER I MEME\n")
+
+for idea in result["meme_ideas"]:
     print(f"Argomento: {idea['topic']}")
-    print(f"Testo: {idea['text_top']}")
-    print(f"Valutazione: {idea['evaluation_score']}/10")
+    print(f"Testo superiore: {idea['text_top']}")
+    print(f"Testo inferiore: {idea['text_bottom']}")
+    print(f"Descrizione: {idea['description']}")
+    print("-" * 40)
+    
+# Visualizziamo la valutazione delle idee
+print("\nVALUTAZIONE DELLE IDEE\n")
+
+for idea in result["meme_ideas"]:
+    print(f"Argomento: {idea['topic']}")
+    print(f"Punteggio: {idea['evaluation_score']}/10")
     print(f"Approvata: {idea['approved']}")
-    print("-" * 50)
+    print("-" * 40)
