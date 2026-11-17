@@ -1,8 +1,5 @@
 
 def rank_trends(state):
-    print("DEBUG verified_trends:")
-    print(state["verified_trends"])
-    print(type(state["verified_trends"]))
     """
     Assegna un punteggio ai trend verificati
     in base a tre criteri.
@@ -43,4 +40,4 @@ def rank_trends(state):
     # Aggiorniamo lo State
     state["ranked_trends"] = ranked_trends
 
-    return state
+    return ranked_trends

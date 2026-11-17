@@ -20,7 +20,4 @@ def evaluate_meme_ideas(state):
 
         evaluated_ideas.append(evaluated_idea)
 
-    # Aggiorniamo lo State
-    state["meme_ideas"] = evaluated_ideas
-
-    return state
+    return evaluated_ideas

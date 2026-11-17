@@ -19,7 +19,4 @@ def generate_meme_ideas(state):
 
         meme_ideas.append(idea)
 
-    # Salviamo le idee nello State
-    state["meme_ideas"] = meme_ideas
-
-    return state
+    return meme_ideas

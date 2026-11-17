@@ -23,10 +23,6 @@ def research_node(state: MemeAgentState):
 def verification_node(state: MemeAgentState):
     verified_trends = verify_trends(state)
 
-    print("\nDEBUG VERIFICATION NODE")
-    print("Tipo:", type(verified_trends))
-    print("Contenuto:", verified_trends)
-
     return {
         "verified_trends": verified_trends
     }
@@ -36,21 +32,33 @@ def ranking_node(state: MemeAgentState):
     Nodo che classifica i trend verificati.
     """
 
-    return rank_trends(state)
+    ranked_trends = rank_trends(state)
+
+    return {
+        "ranked_trends": ranked_trends
+    }
 
 def creative_node(state: MemeAgentState):
     """
     Nodo che genera idee per meme dai trend classificati.
     """
 
-    return generate_meme_ideas(state)
+    meme_ideas = generate_meme_ideas(state)
+
+    return {
+        "meme_ideas": meme_ideas
+    }
 
 def evaluator_node(state: MemeAgentState):
     """
     Nodo che valuta le idee generate dal Creative Agent.
     """
 
-    return evaluate_meme_ideas(state)
+    evaluated_ideas = evaluate_meme_ideas(state)
+
+    return {
+        "meme_ideas": evaluated_ideas
+    }
 
 
 # Creiamo il grafo utilizzando il nostro State
