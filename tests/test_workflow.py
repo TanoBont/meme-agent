@@ -62,8 +62,7 @@ class TestWorkflow(unittest.TestCase):
             }
         ]
 
-        # Simula Research, Creative ed Evaluator
-        # senza effettuare chiamate API reali
+        # Simula tutti gli agenti senza chiamate API reali
         with patch(
             "app.graph.workflow.research_trends",
             return_value=[
@@ -72,6 +71,36 @@ class TestWorkflow(unittest.TestCase):
                     "description": "Trend sull'intelligenza artificiale",
                     "url": "https://example.com/ai",
                     "source": "https://example.com/ai"
+                }
+            ]
+        ), patch(
+            "app.graph.workflow.verify_trends",
+            return_value=[
+                {
+                    "topic": "Nuovi sviluppi AI",
+                    "description": "Trend sull'intelligenza artificiale",
+                    "url": "https://example.com/ai",
+                    "source": "https://example.com/ai",
+                    "verified": True,
+                    "confidence": 9,
+                    "reasoning": "Informazioni sufficientemente supportate."
+                }
+            ]
+        ), patch(
+            "app.graph.workflow.rank_trends",
+            return_value=[
+                {
+                    "topic": "Nuovi sviluppi AI",
+                    "description": "Trend sull'intelligenza artificiale",
+                    "url": "https://example.com/ai",
+                    "source": "https://example.com/ai",
+                    "verified": True,
+                    "confidence": 9,
+                    "reasoning": "Informazioni sufficientemente supportate.",
+                    "actuality": 9,
+                    "interest": 8,
+                    "humor": 10,
+                    "score": 9.0
                 }
             ]
         ), patch(
@@ -123,7 +152,6 @@ class TestWorkflow(unittest.TestCase):
             "revision_count": 0
         }
 
-        # Prima valutazione: meme non approvato
         first_evaluation = [
             {
                 "topic": "Calcio",
@@ -136,7 +164,6 @@ class TestWorkflow(unittest.TestCase):
             }
         ]
 
-        # Seconda valutazione: meme approvato
         second_evaluation = [
             {
                 "topic": "Calcio",
@@ -158,7 +185,6 @@ class TestWorkflow(unittest.TestCase):
             }
         ]
 
-        # Simula Evaluator e Revision
         with patch(
             "app.graph.workflow.evaluate_meme_ideas",
             side_effect=[first_evaluation, second_evaluation]

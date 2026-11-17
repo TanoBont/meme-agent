@@ -1,18 +1,58 @@
 
+from app.llms import get_openai_model
+from app.agents.schemas import TrendRanking
+
+
 def rank_trends(state):
     """
-    Assegna un punteggio ai trend verificati
-    in base a tre criteri.
+    Valuta e ordina i trend verificati utilizzando OpenAI.
     """
+
+    model = get_openai_model(temperature=0.2)
+    structured_model = model.with_structured_output(TrendRanking)
 
     ranked_trends = []
 
     for trend in state["verified_trends"]:
 
-        # Punteggi simulati, da 1 a 10
-        actuality = 8
-        interest = 7
-        humor = 9
+        # Ignoriamo i trend non verificati
+        if not trend["verified"]:
+            continue
+
+        prompt = f"""
+        Sei un esperto di social media e creazione di meme.
+
+        Analizza il seguente trend e assegna tre punteggi
+        da 1 a 10.
+
+        ARGOMENTO:
+        {trend["topic"]}
+
+        DESCRIZIONE:
+        {trend["description"]}
+
+        CRITERI:
+
+        1. ATTUALITÀ:
+        Quanto il trend è attuale e legato a eventi recenti?
+
+        2. INTERESSE:
+        Quanto potrebbe attirare l'attenzione degli utenti?
+
+        3. POTENZIALE UMORISTICO:
+        Quanto si presta alla creazione di meme divertenti?
+
+        Valuta i criteri in modo realistico e differenziato.
+        Non assegnare automaticamente punteggi elevati.
+
+        Fornisci anche una breve motivazione.
+        """
+
+        result = structured_model.invoke(prompt)
+
+        actuality = result.actuality
+        interest = result.interest
+        humor = result.humor
 
         # Calcolo del punteggio complessivo
         score = (
@@ -26,6 +66,7 @@ def rank_trends(state):
             "actuality": actuality,
             "interest": interest,
             "humor": humor,
+            "reasoning": result.reasoning,
             "score": round(score, 2)
         }
 
@@ -36,8 +77,5 @@ def rank_trends(state):
         key=lambda trend: trend["score"],
         reverse=True
     )
-
-    # Aggiorniamo lo State
-    state["ranked_trends"] = ranked_trends
 
     return ranked_trends

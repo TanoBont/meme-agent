@@ -61,3 +61,26 @@ class TrendVerification(BaseModel):
         description="Motivazione sintetica dell'esito della verifica"
     )
 
+
+class TrendRanking(BaseModel):
+    actuality: int = Field(
+        ge=1,
+        le=10,
+        description="Quanto è attuale il trend"
+    )
+
+    interest: int = Field(
+        ge=1,
+        le=10,
+        description="Quanto può interessare agli utenti"
+    )
+
+    humor: int = Field(
+        ge=1,
+        le=10,
+        description="Quanto si presta alla creazione di meme divertenti"
+    )
+
+    reasoning: str = Field(
+        description="Breve motivazione dei punteggi assegnati"
+    )
