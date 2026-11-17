@@ -7,6 +7,7 @@ from app.agents.verification import verify_trends
 from app.agents.ranking import rank_trends
 from app.agents.creative import generate_meme_ideas
 from app.agents.evaluator import evaluate_meme_ideas
+from app.agents.revision import revise_meme_ideas
 
 
 def research_node(state: MemeAgentState):
@@ -60,6 +61,35 @@ def evaluator_node(state: MemeAgentState):
         "meme_ideas": evaluated_ideas
     }
 
+def revision_node(state: MemeAgentState):
+    revised_ideas = revise_meme_ideas(state)
+
+    return {
+        "meme_ideas": revised_ideas,
+        "revision_count": state["revision_count"] + 1
+    }
+    
+
+def should_revise(state: MemeAgentState):
+    """
+    Decide se ripetere la valutazione
+    oppure terminare il workflow.
+    """
+
+    max_revisions = 2
+
+    all_approved = all(
+        idea["approved"] for idea in state["meme_ideas"]
+    )
+
+    if all_approved:
+        return "end"
+
+    if state["revision_count"] >= max_revisions:
+        return "end"
+
+    return "revise"
+
 
 # Creiamo il grafo utilizzando il nostro State
 builder = StateGraph(MemeAgentState)
@@ -70,6 +100,7 @@ builder.add_node("verification", verification_node)
 builder.add_node("ranking", ranking_node)
 builder.add_node("creative", creative_node)
 builder.add_node("evaluator", evaluator_node)
+builder.add_node("revision", revision_node)
 
 # Definiamo il punto di partenza
 builder.add_edge(START, "research")
@@ -77,7 +108,16 @@ builder.add_edge("research", "verification")
 builder.add_edge("verification", "ranking")
 builder.add_edge("ranking", "creative")
 builder.add_edge("creative", "evaluator")
-builder.add_edge("evaluator", END)
+builder.add_conditional_edges(
+    "evaluator",
+    should_revise,
+    {
+        "revise": "revision",
+        "end": END
+    }
+)
+
+builder.add_edge("revision", "evaluator")
 
 
 # Compiliamo il grafo

@@ -3,12 +3,12 @@ from app.graph.workflow import graph
 from app.graph.state import MemeAgentState
 
 
-# Inizializziamo lo State
 initial_state: MemeAgentState = {
     "trends": [],
     "verified_trends": [],
     "ranked_trends": [],
-    "meme_ideas": []
+    "meme_ideas": [],
+    "revision_count": 0
 }
 
 # Eseguiamo il grafo

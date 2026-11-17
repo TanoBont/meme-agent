@@ -7,3 +7,4 @@ class MemeAgentState(TypedDict):
     verified_trends: list
     ranked_trends: list
     meme_ideas: list
+    revision_count: int
