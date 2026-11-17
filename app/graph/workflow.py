@@ -1,5 +1,6 @@
 
 from langgraph.graph import StateGraph, START, END
+from app.config import MAX_REVISIONS
 
 from app.graph.state import MemeAgentState
 from app.agents.research import research_trends
@@ -8,6 +9,7 @@ from app.agents.ranking import rank_trends
 from app.agents.creative import generate_meme_ideas
 from app.agents.evaluator import evaluate_meme_ideas
 from app.agents.revision import revise_meme_ideas
+
 
 
 def research_node(state: MemeAgentState):
@@ -69,23 +71,13 @@ def revision_node(state: MemeAgentState):
         "revision_count": state["revision_count"] + 1
     }
     
-
 def should_revise(state: MemeAgentState):
-    """
-    Decide se ripetere la valutazione
-    oppure terminare il workflow.
-    """
-
-    max_revisions = 2
-
-    all_approved = all(
-        idea["approved"] for idea in state["meme_ideas"]
-    )
+    all_approved = all(idea["approved"] for idea in state["meme_ideas"])
 
     if all_approved:
         return "end"
 
-    if state["revision_count"] >= max_revisions:
+    if state["revision_count"] >= MAX_REVISIONS:
         return "end"
 
     return "revise"
