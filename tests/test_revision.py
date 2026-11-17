@@ -11,7 +11,18 @@ from app.agents.revision import revise_meme_ideas
 
 
 class TestRevision(unittest.TestCase):
+    def test_max_revisions(self):
+        state = {
+            "revision_count": 2,
+            "meme_ideas": [
+                {
+                    "approved": False
+                }
+            ]
+        }
 
+        self.assertEqual(should_revise(state), "end")
+    
     def test_revision_cycle(self):
         state = {
             "trends": [],

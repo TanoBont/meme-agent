@@ -70,3 +70,25 @@ for idea in result["meme_ideas"]:
 
     print("----------------------------------------")
 
+
+
+# Riepilogo dell'esecuzione
+print("\nRIEPILOGO ESECUZIONE\n")
+
+total_ideas = len(result["meme_ideas"])
+
+approved_ideas = sum(
+    1 for idea in result["meme_ideas"]
+    if idea["approved"]
+)
+
+rejected_ideas = total_ideas - approved_ideas
+
+print(f"Trend individuati: {len(result['trends'])}")
+print(f"Idee generate: {total_ideas}")
+print(f"Idee approvate: {approved_ideas}")
+print(f"Idee non approvate: {rejected_ideas}")
+print(f"Revisioni effettuate: {result['revision_count']}")
+
+print("----------------------------------------")
+
