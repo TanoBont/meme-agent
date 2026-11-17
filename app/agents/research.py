@@ -1,23 +1,30 @@
 
+from app.tools.search import search_web
+
+
 def research_trends():
     """
-    Simula la ricerca di alcuni trend online.
-    Per ora utilizziamo dati di esempio.
+    Ricerca trend attuali sul web utilizzando Tavily.
     """
 
-    trends = [
-        {
-            "topic": "Intelligenza artificiale",
-            "description": "Nuovi strumenti AI diventano virali sui social."
-        },
-        {
-            "topic": "Calcio",
-            "description": "Discussioni e polemiche dopo una giornata di campionato."
-        },
-        {
-            "topic": "Tecnologia",
-            "description": "Nuovi dispositivi tecnologici fanno discutere online."
-        }
+    search_queries = [
+        "ultime tendenze intelligenza artificiale tecnologia",
+        "ultime notizie di calcio e argomenti discussi",
+        "trend virali e argomenti popolari sui social"
     ]
+
+    trends = []
+
+    for query in search_queries:
+
+        results = search_web(query, max_results=3)
+
+        for result in results:
+            trends.append({
+                "topic": result.get("title", ""),
+                "description": result.get("content", ""),
+                "url": result.get("url", ""),
+                "source": result.get("url", "")
+            })
 
     return trends

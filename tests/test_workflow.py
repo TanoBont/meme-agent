@@ -62,8 +62,19 @@ class TestWorkflow(unittest.TestCase):
             }
         ]
 
-        # Simula Creative ed Evaluator senza chiamare OpenAI
+        # Simula Research, Creative ed Evaluator
+        # senza effettuare chiamate API reali
         with patch(
+            "app.graph.workflow.research_trends",
+            return_value=[
+                {
+                    "topic": "Nuovi sviluppi AI",
+                    "description": "Trend sull'intelligenza artificiale",
+                    "url": "https://example.com/ai",
+                    "source": "https://example.com/ai"
+                }
+            ]
+        ), patch(
             "app.graph.workflow.generate_meme_ideas",
             return_value=generated_ideas
         ), patch(
