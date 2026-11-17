@@ -91,4 +91,3 @@ print(f"Idee non approvate: {rejected_ideas}")
 print(f"Revisioni effettuate: {result['revision_count']}")
 
 print("----------------------------------------")
-

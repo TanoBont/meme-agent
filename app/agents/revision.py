@@ -1,46 +1,64 @@
 
+from app.llms import get_openai_model
+from app.agents.schemas import MemeRevision
+
+
 def revise_meme_ideas(state):
     """
-    Rivede le idee non approvate utilizzando
-    i risultati dei singoli criteri di valutazione.
+    Rivede le idee non approvate utilizzando un modello linguistico.
     """
+
+    structured_model = None
+
     revised_ideas = []
 
     for idea in state["meme_ideas"]:
+
         if idea["approved"]:
             revised_ideas.append(idea)
             continue
 
-        revised_idea = idea.copy()
+        if structured_model is None:
+            model = get_openai_model(temperature=0.8)
+            structured_model = model.with_structured_output(MemeRevision)
+
         evaluation = idea["evaluation"]
-        topic = idea["topic"].upper()
 
-        # Correzione della completezza
-        if evaluation["completeness"] < 10:
-            if not revised_idea.get("text_top"):
-                revised_idea["text_top"] = f"QUANDO SCOPRI {topic}"
-            if not revised_idea.get("text_bottom"):
-                revised_idea["text_bottom"] = "MA NON VA COME PREVISTO"
-            if not revised_idea.get("description"):
-                revised_idea["description"] = f"Meme ironico sul tema {idea['topic']}"
+        prompt = f"""
+        Sei un esperto creativo specializzato nella realizzazione di meme.
 
-        # Correzione della pertinenza
-        if evaluation["relevance"] < 7:
-            revised_idea["text_top"] = f"QUANDO TI CONFRONTI CON {topic}"
-            revised_idea["description"] = f"Meme ironico e pertinente al tema {idea['topic']}"
+        Il tuo compito è migliorare il seguente meme, che non ha superato
+        la valutazione qualitativa.
 
-        # Correzione della leggibilità
-        if evaluation["readability"] < 7:
-            revised_idea["text_top"] = f"QUANDO PROVI {topic}"
-            revised_idea["text_bottom"] = "MA NON È FACILE"
+        ARGOMENTO: {idea["topic"]}
+        TESTO SUPERIORE: {idea["text_top"]}
+        TESTO INFERIORE: {idea["text_bottom"]}
+        DESCRIZIONE: {idea["description"]}
 
-        # Correzione della struttura
-        if evaluation["structure"] < 7:
-            if revised_idea["text_top"].strip().lower() == revised_idea["text_bottom"].strip().lower():
-                revised_idea["text_bottom"] = "MA LE COSE CAMBIANO"
-            if revised_idea["text_top"].strip().lower() == revised_idea["description"].strip().lower():
-                revised_idea["description"] = f"Meme ironico sul tema {idea['topic']}"
+        VALUTAZIONE:
+        {evaluation}
 
+        FEEDBACK:
+        {evaluation.get("feedback", "Nessun feedback disponibile")}
+
+        ISTRUZIONI:
+        - Mantieni il collegamento con l'argomento originale.
+        - Migliora creatività, umorismo e originalità.
+        - Utilizza testi brevi e immediati.
+        - Il testo superiore deve introdurre una situazione.
+        - Il testo inferiore deve contenere una conclusione ironica.
+        - Evita ripetizioni e formulazioni generiche.
+
+        Restituisci una versione migliorata del meme.
+        """
+
+        result = structured_model.invoke(prompt)
+
+        revised_idea = idea.copy()
+
+        revised_idea.update(result.model_dump())
+
+        # L'idea dovrà essere valutata nuovamente
         revised_ideas.append(revised_idea)
 
     return revised_ideas
