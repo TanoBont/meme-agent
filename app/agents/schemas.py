@@ -46,3 +46,18 @@ class MemeRevision(BaseModel):
     description: str = Field(
         description="Nuova descrizione del meme"
     )
+
+
+class TrendVerification(BaseModel):
+    verified: bool = Field(
+        description="Indica se il trend è sufficientemente supportato dalle informazioni disponibili"
+    )
+    confidence: int = Field(
+        ge=1,
+        le=10,
+        description="Livello di confidenza della verifica da 1 a 10"
+    )
+    reasoning: str = Field(
+        description="Motivazione sintetica dell'esito della verifica"
+    )
+
