@@ -52,11 +52,21 @@ for idea in result["meme_ideas"]:
     print(f"Descrizione: {idea['description']}")
     print("-" * 40)
     
-# Visualizziamo la valutazione delle idee
+
 print("\nVALUTAZIONE DELLE IDEE\n")
 
 for idea in result["meme_ideas"]:
     print(f"Argomento: {idea['topic']}")
-    print(f"Punteggio: {idea['evaluation_score']}/10")
+
+    evaluation = idea["evaluation"]
+
+    print(f"Completezza: {evaluation['completeness']}/10")
+    print(f"Pertinenza: {evaluation['relevance']}/10")
+    print(f"Leggibilità: {evaluation['readability']}/10")
+    print(f"Struttura: {evaluation['structure']}/10")
+
+    print(f"Punteggio complessivo: {idea['evaluation_score']}/10")
     print(f"Approvata: {idea['approved']}")
-    print("-" * 40)
+
+    print("----------------------------------------")
+
