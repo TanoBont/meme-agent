@@ -5,22 +5,45 @@ from app.config import MAX_TRENDS
 
 def research_trends():
     """
-    Ricerca trend attuali sul web utilizzando Tavily.
-    Valida i risultati ed elimina eventuali duplicati.
+    Ricerca trend calcistici italiani ed europei.
+    Distingue contenuti attuali ed evergreen,
+    elimina risultati incompleti e duplicati.
     """
 
     search_queries = [
-        "ultime tendenze intelligenza artificiale tecnologia",
-        "ultime notizie di calcio e argomenti discussi",
-        "trend virali e argomenti popolari sui social"
+        {
+            "category": "serie_a",
+            "content_type": "current",
+            "query": "ultime notizie Serie A risultati partite giocatori allenatori"
+        },
+        {
+            "category": "calciomercato",
+            "content_type": "current",
+            "query": "ultime notizie calciomercato italiano ed europeo"
+        },
+        {
+            "category": "champions_league",
+            "content_type": "current",
+            "query": "ultime notizie Champions League Europa League calcio europeo"
+        },
+        {
+            "category": "controversies",
+            "content_type": "current",
+            "query": "polemiche arbitrali VAR dichiarazioni controverse calcio"
+        },
+        {
+            "category": "football_culture",
+            "content_type": "evergreen",
+            "query": "meme calcio momenti virali rivalità sfottò tifoserie"
+        }
     ]
 
     trends = []
     seen_urls = set()
 
-    for query in search_queries:
+    for search in search_queries:
 
-        results = search_web(query, max_results=3)
+        results = search_web(search["query"], max_results=1)
 
         for result in results:
 
@@ -42,7 +65,10 @@ def research_trends():
                 "topic": title,
                 "description": description,
                 "url": url,
-                "source": url
+                "source": url,
+                "category": search["category"],
+                "content_type": search["content_type"],
+                "published_date": result.get("published_date")
             })
 
     return trends[:MAX_TRENDS]
