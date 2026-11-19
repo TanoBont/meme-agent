@@ -1,11 +1,12 @@
 
 from app.llms import get_openai_model
 from app.agents.schemas import TrendRanking
+from app.config import MAX_TRENDS
 
 
 def rank_trends(state):
     """
-    Valuta e ordina i trend verificati utilizzando OpenAI.
+    Valuta e ordina i trend calcistici verificati utilizzando OpenAI.
     """
 
     model = get_openai_model(temperature=0.2)
@@ -19,8 +20,13 @@ def rank_trends(state):
         if not trend["verified"]:
             continue
 
+        
         prompt = f"""
-        Sei un esperto di social media e creazione di meme.
+        Sei un esperto di calcio italiano ed europeo,
+        social media e creazione di meme calcistici.
+
+        Il tuo compito è individuare i trend con il maggiore
+        potenziale per diventare meme sui social.
 
         Analizza il seguente trend e assegna tre punteggi
         da 1 a 10.
@@ -31,22 +37,66 @@ def rank_trends(state):
         DESCRIZIONE:
         {trend["description"]}
 
-        CRITERI:
+        CATEGORIA:
+        {trend.get("category", "Non specificata")}
+
+        TIPOLOGIA:
+        {trend.get("content_type", "Non specificata")}
+
+        DATA DI PUBBLICAZIONE:
+        {trend.get("published_date") or "Non disponibile"}
+
+        CONFIDENZA DELLA VERIFICA:
+        {trend.get("confidence", "Non disponibile")}
+
+        CRITERI DI VALUTAZIONE:
 
         1. ATTUALITÀ:
-        Quanto il trend è attuale e legato a eventi recenti?
+        Per i contenuti CURRENT valuta quanto il trend sia
+        recente e collegato a eventi attuali.
+
+        Per i contenuti EVERGREEN valuta quanto il trend
+        sia ancora riconoscibile e rilevante nella cultura calcistica.
+        Non penalizzarlo soltanto perché non è recente.
 
         2. INTERESSE:
-        Quanto potrebbe attirare l'attenzione degli utenti?
+        Valuta quanto il trend potrebbe attirare l'attenzione
+        degli appassionati di calcio italiani ed europei.
+
+        Considera:
+        - Importanza dell'evento o del personaggio.
+        - Coinvolgimento delle tifoserie.
+        - Possibilità di generare discussioni e reazioni sui social.
+        - Rilevanza per il pubblico calcistico.
 
         3. POTENZIALE UMORISTICO:
-        Quanto si presta alla creazione di meme divertenti?
+        Valuta quanto il trend si presta alla creazione
+        di meme divertenti, battute, sfottò e situazioni ironiche.
 
-        Valuta i criteri in modo realistico e differenziato.
-        Non assegnare automaticamente punteggi elevati.
+        Considera:
+        - Presenza di situazioni paradossali o divertenti.
+        - Possibilità di creare battute riconoscibili.
+        - Potenziale di condivisione sui social.
+        - Disponibilità di elementi concreti da utilizzare
+          per costruire un meme.
 
-        Fornisci anche una breve motivazione.
+        REGOLE:
+        - Valuta i criteri in modo realistico e differenziato.
+        - Non assegnare automaticamente punteggi elevati.
+        - Non inventare informazioni non presenti nel contenuto.
+        - Non confondere l'importanza giornalistica
+          con il potenziale di creare un meme.
+        - Non penalizzare automaticamente un trend
+          soltanto perché proviene da una categoria evergreen.
+        - Utilizza la confidenza della verifica come elemento
+          di contesto, non come punteggio automatico.
+
+        Assegna un punteggio da 1 a 10 per ciascun criterio.
+
+        Fornisci anche una breve motivazione che spieghi
+        perché il trend merita il punteggio assegnato.
         """
+
 
         result = structured_model.invoke(prompt)
 
@@ -78,4 +128,4 @@ def rank_trends(state):
         reverse=True
     )
 
-    return ranked_trends
+    return ranked_trends[:MAX_TRENDS]

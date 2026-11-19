@@ -43,14 +43,18 @@ for trend in result["ranked_trends"]:
     print("-" * 40)
     
 # Visualizziamo le idee generate
-print("\nIDEE PER I MEME\n")
+if not result["meme_ideas"]:
+    print("\nNessuna idea per meme generata.")
+    print("Nessun trend ha superato la fase di verifica e classificazione.")
+else:
+    print("\nIDEE PER I MEME\n")
 
-for idea in result["meme_ideas"]:
-    print(f"Argomento: {idea['topic']}")
-    print(f"Testo superiore: {idea['text_top']}")
-    print(f"Testo inferiore: {idea['text_bottom']}")
-    print(f"Descrizione: {idea['description']}")
-    print("-" * 40)
+    for idea in result["meme_ideas"]:
+        print(f"Argomento: {idea['topic']}")
+        print(f"Testo superiore: {idea['text_top']}")
+        print(f"Testo inferiore: {idea['text_bottom']}")
+        print(f"Descrizione: {idea['description']}")
+        print("-" * 40)
     
 
 print("\nVALUTAZIONE DELLE IDEE\n")

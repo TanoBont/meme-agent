@@ -1,4 +1,46 @@
 
+import re
+import unicodedata
+
+from app.agents.football_keywords import FOOTBALL_KEYWORDS
+
+def normalize_text(text):
+    """
+    Normalizza il testo per facilitare il confronto delle parole.
+    """
+
+    text = unicodedata.normalize("NFKD", text.lower())
+
+    text = "".join(
+        char for char in text
+        if not unicodedata.combining(char)
+    )
+
+    return text
+
+
+def count_keyword_matches(text, keywords):
+    """
+    Conta le parole chiave presenti nel testo,
+    evitando corrispondenze parziali.
+    """
+
+    matches = 0
+
+    for keyword in keywords:
+        normalized_keyword = normalize_text(keyword)
+
+        pattern = (
+            r"(?<!\w)"
+            + re.escape(normalized_keyword)
+            + r"(?!\w)"
+        )
+
+        if re.search(pattern, text):
+            matches += 1
+
+    return matches
+
 def evaluate_completeness(idea):
     """
     Valuta la completezza di un'idea per meme.
@@ -26,30 +68,89 @@ def evaluate_completeness(idea):
 
 def evaluate_relevance(idea):
     """
-    Valuta la pertinenza tra l'argomento e il contenuto del meme.
+    Valuta la pertinenza tra l'argomento e il contenuto del meme,
+    considerando topic, categoria e contesto calcistico.
     """
 
-    topic = idea.get("topic", "").lower()
+    topic = idea.get("topic", "")
+    category = idea.get("category")
 
     content = " ".join([
         idea.get("text_top", ""),
         idea.get("text_bottom", ""),
         idea.get("description", "")
-    ]).lower()
+    ])
 
-    topic_words = topic.split()
+    topic = normalize_text(topic)
+    content = normalize_text(content)
 
-    if not topic_words:
+    if not topic:
         return 1
 
-    matching_words = sum(
+    # Parole chiave generali del mondo calcistico
+    general_keywords = [
+        "calcio", "football", "squadra", "partita",
+        "gol", "rete", "giocatore", "calciatore",
+        "allenatore", "arbitro", "var", "tifoso",
+        "tifoseria", "campionato", "derby",
+        "portiere", "attaccante", "difensore",
+        "centrocampista", "rigore"
+    ]
+
+    # 1. Pertinenza diretta rispetto al topic
+    topic_words = topic.split()
+
+    matching_topic_words = sum(
         1 for word in topic_words
-        if word in content
+        if count_keyword_matches(content, [word]) > 0
     )
 
-    relevance_ratio = matching_words / len(topic_words)
+    topic_score = (
+        matching_topic_words / len(topic_words)
+    ) * 10
 
-    score = 1 + relevance_ratio * 9
+    # 2. Pertinenza rispetto alla categoria
+    category_score = None
+
+    if category in FOOTBALL_KEYWORDS:
+        category_keywords = FOOTBALL_KEYWORDS[category]
+
+        category_matches = count_keyword_matches(
+            content,
+            category_keywords
+        )
+
+        category_score = min(category_matches / 2, 1) * 10
+
+    # 3. Pertinenza calcistica generale
+    general_matches = count_keyword_matches(
+        content,
+        general_keywords
+    )
+
+    general_score = min(general_matches / 3, 1) * 10
+
+    # Se il topic è semplicemente "calcio",
+    # valutiamo la pertinenza attraverso il contesto calcistico.
+    if topic in ["calcio", "football"]:
+        topic_score = general_score
+
+    # Combinazione dei punteggi
+    if category_score is not None:
+        score = (
+            topic_score * 0.4 +
+            category_score * 0.4 +
+            general_score * 0.2
+        )
+    else:
+        # Se manca la categoria, redistribuiamo i pesi.
+        score = (
+            topic_score * (0.4 / 0.6) +
+            general_score * (0.2 / 0.6)
+        )
+
+    # Riportiamo il risultato nell'intervallo 1-10
+    score = max(1, min(score, 10))
 
     return round(score, 2)
 

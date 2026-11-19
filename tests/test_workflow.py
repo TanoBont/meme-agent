@@ -203,5 +203,76 @@ class TestWorkflow(unittest.TestCase):
         mock_revision.assert_called_once()
 
 
+    def test_workflow_limite_revisioni(self):
+
+        builder = StateGraph(MemeAgentState)
+
+        builder.add_node("evaluator", evaluator_node)
+        builder.add_node("revision", revision_node)
+
+        builder.add_edge(START, "evaluator")
+
+        builder.add_conditional_edges(
+            "evaluator",
+            should_revise,
+            {
+                "revise": "revision",
+                "end": END
+            }
+        )
+
+        builder.add_edge("revision", "evaluator")
+
+        test_graph = builder.compile()
+
+        initial_state = {
+            "trends": [],
+            "verified_trends": [],
+            "ranked_trends": [],
+            "meme_ideas": [
+                {
+                    "topic": "Calcio",
+                    "text_top": "QUANDO VINCI",
+                    "text_bottom": "MA POI PERDI",
+                    "description": "Meme calcistico",
+                    "score": 8.5,
+                    "approved": False
+                }
+            ],
+            "revision_count": 0
+        }
+
+        rejected_ideas = [
+            {
+                "topic": "Calcio",
+                "text_top": "QUANDO VINCI",
+                "text_bottom": "MA POI PERDI",
+                "description": "Meme calcistico",
+                "score": 8.5,
+                "approved": False
+            }
+        ]
+
+        with patch(
+            "app.graph.workflow.MAX_REVISIONS",
+            2
+        ), patch(
+            "app.graph.workflow.evaluate_meme_ideas",
+            return_value=rejected_ideas
+        ) as mock_evaluator, patch(
+            "app.graph.workflow.revise_meme_ideas",
+            return_value=rejected_ideas
+        ) as mock_revision:
+
+            result = test_graph.invoke(initial_state)
+
+        self.assertEqual(result["revision_count"], 2)
+
+        self.assertFalse(result["meme_ideas"][0]["approved"])
+
+        self.assertEqual(mock_revision.call_count, 2)
+        self.assertEqual(mock_evaluator.call_count, 3)
+
+
 if __name__ == "__main__":
     unittest.main()

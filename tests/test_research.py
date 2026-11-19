@@ -54,7 +54,7 @@ class TestResearch(unittest.TestCase):
                 {
                     "title": "Risultati Serie A",
                     "content": "Risultato duplicato.",
-                    "url": "https://example.com/serie-a"
+                    "url": "https://EXAMPLE.com/serie-a/"
                 }
             ]
         ]
@@ -67,7 +67,7 @@ class TestResearch(unittest.TestCase):
         urls = [trend["url"] for trend in trends]
         self.assertEqual(len(urls), len(set(urls)))
 
-        # Verifica le categorie
+        # Verifica categorie
         self.assertEqual(
             [trend["category"] for trend in trends],
             [
@@ -79,7 +79,7 @@ class TestResearch(unittest.TestCase):
             ]
         )
 
-        # Verifica le tipologie di contenuto
+        # Verifica tipologie di contenuto
         self.assertEqual(
             [trend["content_type"] for trend in trends],
             [
@@ -91,7 +91,7 @@ class TestResearch(unittest.TestCase):
             ]
         )
 
-        # Verifica i campi dei risultati
+        # Verifica campi dei risultati
         for trend in trends:
             self.assertTrue(trend["topic"])
             self.assertTrue(trend["description"])
@@ -101,68 +101,100 @@ class TestResearch(unittest.TestCase):
             self.assertIn("content_type", trend)
             self.assertIn("published_date", trend)
 
-        # Verifica la data di pubblicazione
+        # Verifica data di pubblicazione
         self.assertEqual(
             trends[0]["published_date"],
             "2026-11-19"
         )
 
-        # Verifica che le ricerche siano cinque
+        # Verifica numero di ricerche
         self.assertEqual(mock_search.call_count, 5)
 
-        # Verifica il numero massimo di risultati per query
+        # Verifica numero massimo di risultati per query
         for call in mock_search.call_args_list:
-            self.assertEqual(call.kwargs["max_results"], 1)
+            self.assertEqual(call.kwargs["max_results"], 2)
 
     @patch("app.agents.research.search_web")
-    @patch("app.agents.research.MAX_TRENDS", 3)
-    def test_max_trends_limit(self, mock_search):
+    def test_collects_up_to_ten_trends(self, mock_search):
 
         mock_search.side_effect = [
             [
                 {
-                    "title": f"Trend {i}",
-                    "content": f"Descrizione del trend {i}",
-                    "url": f"https://example.com/{i}"
+                    "title": f"Trend {category}_{i}",
+                    "content": f"Descrizione {category}_{i}",
+                    "url": f"https://example.com/{category}_{i}"
                 }
+                for i in range(2)
             ]
-            for i in range(1, 6)
+            for category in range(5)
         ]
 
         trends = research_trends()
 
-        # Verifica il limite massimo configurato
-        self.assertEqual(len(trends), 3)
+        # Verifica raccolta di 10 trend
+        self.assertEqual(len(trends), 10)
+        self.assertEqual(mock_search.call_count, 5)
 
-        self.assertEqual(
-            [trend["topic"] for trend in trends],
-            ["Trend 1", "Trend 2", "Trend 3"]
-        )
+    @patch("app.agents.research.search_web")
+    def test_search_queries(self, mock_search):
 
-        @patch("app.agents.research.search_web")
-        def test_search_queries(self, mock_search):
+        mock_search.return_value = []
 
-            mock_search.return_value = []
+        research_trends()
 
-            research_trends()
+        queries = [
+            call.args[0]
+            for call in mock_search.call_args_list
+        ]
 
-            queries = [
-                call.args[0]
-                for call in mock_search.call_args_list
-            ]
+        expected_keywords = [
+            "serie a",
+            "calciomercato",
+            "champions league",
+            "var",
+            "sfottò"
+        ]
 
-            expected_keywords = [
-                "serie a",
-                "calciomercato",
-                "champions league",
-                "var",
-                "meme"
-            ]
+        self.assertEqual(len(queries), 5)
 
-            self.assertEqual(len(queries), 5)
+        for query, keyword in zip(queries, expected_keywords):
+            self.assertIn(keyword, query.lower())
 
-            for query, keyword in zip(queries, expected_keywords):
-                self.assertIn(keyword, query.lower())
+        # Verifica che le query contengano un riferimento temporale
+        for query in queries[:4]:
+            self.assertTrue(any(char.isdigit() for char in query))
+
+    @patch("app.agents.research.search_web")
+    def test_search_removes_incomplete_results(self, mock_search):
+
+        mock_search.side_effect = [
+            [
+                {
+                    "title": "Trend valido",
+                    "content": "Descrizione valida.",
+                    "url": "https://example.com/valid"
+                },
+                {
+                    "title": "Trend senza descrizione",
+                    "content": "",
+                    "url": "https://example.com/incomplete"
+                },
+                {
+                    "title": "Trend senza URL",
+                    "content": "Descrizione disponibile."
+                }
+            ],
+            [],
+            [],
+            [],
+            []
+        ]
+
+        trends = research_trends()
+
+        self.assertEqual(len(trends), 1)
+        self.assertEqual(trends[0]["topic"], "Trend valido")
+
 
 if __name__ == "__main__":
     unittest.main()

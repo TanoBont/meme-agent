@@ -1,6 +1,7 @@
 
+from datetime import date
+
 from app.tools.search import search_web
-from app.config import MAX_TRENDS
 
 
 def research_trends():
@@ -10,31 +11,53 @@ def research_trends():
     elimina risultati incompleti e duplicati.
     """
 
+    today = date.today().strftime("%d %B %Y")
+
     search_queries = [
         {
             "category": "serie_a",
             "content_type": "current",
-            "query": "ultime notizie Serie A risultati partite giocatori allenatori"
+            "query": (
+                f"Serie A ultime notizie calcio {today} "
+                "infortuni ufficiali risultati partite "
+                "prestazioni giocatori allenatori"
+            )
         },
         {
             "category": "calciomercato",
             "content_type": "current",
-            "query": "ultime notizie calciomercato italiano ed europeo"
+            "query": (
+                f"calciomercato {today} trattative "
+                "aggiornamenti trasferimenti ufficiali "
+                "Serie A Premier League Liga"
+            )
         },
         {
             "category": "champions_league",
             "content_type": "current",
-            "query": "ultime notizie Champions League Europa League calcio europeo"
+            "query": (
+                f"UEFA Champions League {today} "
+                "ultime partite risultati gol "
+                "prestazioni giocatori notizie"
+            )
         },
         {
             "category": "controversies",
             "content_type": "current",
-            "query": "polemiche arbitrali VAR dichiarazioni controverse calcio"
+            "query": (
+                f"Serie A {today} episodi arbitrali "
+                "controversi VAR rigori espulsioni "
+                "decisioni arbitrali partite recenti"
+            )
         },
         {
             "category": "football_culture",
             "content_type": "evergreen",
-            "query": "meme calcio momenti virali rivalità sfottò tifoserie"
+            "query": (
+                "calcio italiano rivalità storiche "
+                "tifoserie sfottò derby momenti iconici "
+                "episodi memorabili cultura calcistica"
+            )
         }
     ]
 
@@ -43,7 +66,10 @@ def research_trends():
 
     for search in search_queries:
 
-        results = search_web(search["query"], max_results=1)
+        results = search_web(
+            search["query"],
+            max_results=2
+        )
 
         for result in results:
 
@@ -55,11 +81,13 @@ def research_trends():
             if not title or not description or not url:
                 continue
 
-            # Evitiamo i duplicati
-            if url in seen_urls:
+            # Normalizziamo l'URL per evitare duplicati
+            normalized_url = url.lower().rstrip("/")
+
+            if normalized_url in seen_urls:
                 continue
 
-            seen_urls.add(url)
+            seen_urls.add(normalized_url)
 
             trends.append({
                 "topic": title,
@@ -71,4 +99,4 @@ def research_trends():
                 "published_date": result.get("published_date")
             })
 
-    return trends[:MAX_TRENDS]
+    return trends

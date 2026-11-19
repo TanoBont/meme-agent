@@ -22,6 +22,9 @@ def evaluate_meme_ideas(state):
     structured_model = model.with_structured_output(MemeEvaluation)
 
     evaluated_ideas = []
+    if not state["meme_ideas"]:
+        return []
+
 
     for idea in state["meme_ideas"]:
 

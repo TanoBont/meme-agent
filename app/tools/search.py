@@ -20,14 +20,20 @@ def get_tavily_client():
 def search_web(query: str, max_results: int = 5):
     """
     Esegue una ricerca web tramite Tavily.
+    Gestisce eventuali errori senza interrompere il workflow.
     """
 
-    client = get_tavily_client()
+    try:
+        client = get_tavily_client()
 
-    response = client.search(
-        query=query,
-        search_depth="basic",
-        max_results=max_results
-    )
+        response = client.search(
+            query=query,
+            search_depth="basic",
+            max_results=max_results
+        )
 
-    return response.get("results", [])
+        return response.get("results", [])
+
+    except Exception as error:
+        print(f"Errore durante la ricerca Tavily: {error}")
+        return []
