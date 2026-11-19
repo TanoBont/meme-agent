@@ -1,5 +1,7 @@
 # Meme Agent
 
+![CI](https://github.com/TanoBont/meme-agent/actions/workflows/ci.yml/badge.svg)
+
 Meme Agent è un progetto personale basato su un'architettura multi-agente che utilizza l'intelligenza artificiale per individuare trend calcistici online e trasformarli in idee per meme.
 
 Il sistema automatizza le diverse fasi del processo, dalla ricerca delle notizie alla valutazione delle idee creative, attraverso agenti specializzati coordinati da un workflow realizzato con **LangGraph**.
