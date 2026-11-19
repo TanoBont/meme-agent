@@ -79,5 +79,54 @@ class TestResearch(unittest.TestCase):
         self.assertEqual(mock_search.call_count, 3)
 
 
+
+    @patch("app.agents.research.search_web")
+    def test_max_trends_limit(self, mock_search):
+
+        # Simuliamo 7 risultati validi
+        mock_search.side_effect = [
+            [
+                {
+                    "title": f"Trend {i}",
+                    "content": f"Descrizione del trend {i}",
+                    "url": f"https://example.com/{i}"
+                }
+                for i in range(1, 4)
+            ],
+            [
+                {
+                    "title": f"Trend {i}",
+                    "content": f"Descrizione del trend {i}",
+                    "url": f"https://example.com/{i}"
+                }
+                for i in range(4, 7)
+            ],
+            [
+                {
+                    "title": "Trend 7",
+                    "content": "Descrizione del trend 7",
+                    "url": "https://example.com/7"
+                }
+            ]
+        ]
+
+        trends = research_trends()
+
+        # Verifica il limite massimo
+        self.assertEqual(len(trends), 5)
+
+        # Verifica che siano stati mantenuti i primi 5
+        self.assertEqual(
+            [trend["topic"] for trend in trends],
+            [
+                "Trend 1",
+                "Trend 2",
+                "Trend 3",
+                "Trend 4",
+                "Trend 5"
+            ]
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,6 @@
 
 from app.tools.search import search_web
+from app.config import MAX_TRENDS
 
 
 def research_trends():
@@ -44,4 +45,4 @@ def research_trends():
                 "source": url
             })
 
-    return trends
+    return trends[:MAX_TRENDS]
