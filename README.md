@@ -2,32 +2,67 @@
 
 ![CI](https://github.com/TanoBont/meme-agent/actions/workflows/ci.yml/badge.svg)
 
-Meme Agent è un progetto personale basato su un'architettura multi-agente che utilizza l'intelligenza artificiale per individuare trend calcistici online e trasformarli in idee per meme.
+Meme Agent è un progetto personale basato sull'intelligenza artificiale, nato con l'obiettivo di individuare trend e notizie dal mondo del calcio e trasformarli in idee creative per meme.
 
-Il sistema automatizza le diverse fasi del processo, dalla ricerca delle notizie alla valutazione delle idee creative, attraverso agenti specializzati coordinati da un workflow realizzato con **LangGraph**.
+Il progetto è attualmente composto da un prototipo Python multi-agente e da una progettazione più ampia per una futura piattaforma web AI-powered.
 
-## Obiettivi
+L'obiettivo è sviluppare un sistema che supporti l'intero processo creativo: dalla scoperta degli eventi calcistici alla generazione, modifica e condivisione dei meme, mantenendo l'utente al centro delle decisioni.
 
-- Ricercare notizie e trend relativi al mondo del calcio.
-- Analizzare e valutare preliminarmente le informazioni raccolte.
-- Classificare i trend in base ad attualità, interesse e potenziale umoristico.
-- Generare idee creative per meme utilizzando modelli linguistici.
-- Valutare automaticamente la qualità delle idee generate.
-- Migliorare le idee che non superano la fase di valutazione.
+## Indice
 
-## Architettura
+- [Progetto](#progetto)
+- [Stato attuale](#stato-attuale)
+- [Prototipo multi-agente](#prototipo-multi-agente)
+- [Tecnologie utilizzate](#tecnologie-utilizzate)
+- [Installazione e configurazione](#installazione-e-configurazione)
+- [Esecuzione](#esecuzione)
+- [Test](#test)
+- [Progettazione della piattaforma](#progettazione-della-piattaforma)
+- [Documentazione](#documentazione)
+- [Roadmap](#roadmap)
 
-Il sistema è composto da sei agenti specializzati, coordinati attraverso un workflow basato su LangGraph.
+## Progetto
+
+Meme Agent nasce come esperimento di applicazione pratica dei sistemi multi-agente e dei Large Language Models alla creazione di contenuti umoristici legati al calcio.
+
+Il progetto si è evoluto verso una piattaforma più articolata, che prevede:
+
+- **Discover:** ricerca e analisi di notizie ed eventi calcistici con potenziale creativo.
+- **Meme Studio:** ambiente assistito dall'AI per ideare e realizzare meme.
+- **Library:** raccolta personale per organizzare e conservare i contenuti.
+- **Knowledge Base & RAG:** gestione e recupero di informazioni per migliorare il contesto delle generazioni AI.
+
+La piattaforma è progettata per essere estendibile e modulare, con particolare attenzione a sicurezza, privacy, qualità del software e gestione dei costi dei servizi AI.
+
+## Stato attuale
+
+Il progetto si trova in una fase di evoluzione tra prototipazione e progettazione architetturale.
+
+| Componente | Stato |
+|---|---|
+| Prototipo Python multi-agente | Implementato |
+| Ricerca e analisi dei trend calcistici | Implementata nel prototipo |
+| Generazione e valutazione delle idee | Implementata nel prototipo |
+| Revisione automatica delle idee | Implementata nel prototipo |
+| Progettazione della piattaforma web | In progettazione |
+| Modello dati e architettura target | Progettati a livello concettuale |
+| Implementazione della piattaforma web | Da avviare |
+
+Le funzionalità descritte nella progettazione della piattaforma non devono essere considerate già disponibili nel prototipo.
+
+## Prototipo multi-agente
+
+Il prototipo attuale è sviluppato in Python e utilizza LangGraph per coordinare sei agenti specializzati attraverso un workflow condiviso.
 
 ### Agenti
 
 **1. Research Agent**
 
-Si occupa della ricerca online di notizie e trend calcistici tramite Tavily. Raccoglie i risultati e gestisce i relativi metadati, occupandosi anche della rimozione dei duplicati.
+Ricerca online notizie e trend calcistici tramite Tavily. Raccoglie i risultati, gestisce i metadati e contribuisce alla rimozione dei duplicati.
 
 **2. Verification Agent**
 
-Analizza le informazioni raccolte e ne valuta la plausibilità sulla base dei contenuti restituiti dalla ricerca, effettuando una prima verifica dei trend individuati.
+Analizza le informazioni raccolte e ne valuta la plausibilità sulla base dei contenuti disponibili.
 
 **3. Ranking Agent**
 
@@ -41,108 +76,102 @@ I trend vengono ordinati in base al punteggio complessivo e vengono selezionati 
 
 **4. Creative Agent**
 
-Genera idee per meme a partire dai trend selezionati, utilizzando output strutturati per mantenere organizzati i contenuti creativi.
+Genera idee per meme a partire dai trend selezionati, utilizzando output strutturati per organizzare i contenuti creativi.
 
 **5. Evaluator Agent**
 
-Valuta le idee generate combinando controlli basati su regole Python e valutazioni effettuate tramite un modello linguistico.
-
-La valutazione combina:
+Valuta le idee generate combinando controlli basati su regole Python e valutazioni effettuate tramite un modello linguistico:
 
 - Controlli basati su regole: 60%
 - Valutazione AI: 40%
 
-Le idee che raggiungono la soglia di approvazione prevista vengono accettate.
-
 **6. Revision Agent**
 
-Si occupa di migliorare le idee che non superano la valutazione. Le versioni revisionate vengono sottoposte nuovamente all'Evaluator Agent, entro un numero massimo di tentativi configurabile.
+Migliora le idee che non superano la valutazione. Le versioni revisionate vengono sottoposte nuovamente all'Evaluator Agent, entro un numero massimo di tentativi configurabile.
 
-## Workflow
+### Workflow
 
-Gli agenti sono coordinati da LangGraph attraverso uno stato condiviso che permette di trasferire i dati tra le diverse fasi.
+Il processo è coordinato da LangGraph attraverso uno stato condiviso che permette il trasferimento delle informazioni tra le diverse fasi.
 
-Il processo segue queste fasi:
+Le principali fasi sono:
 
 1. Ricerca dei trend online.
-2. Verifica preliminare delle informazioni raccolte.
+2. Verifica preliminare delle informazioni.
 3. Classificazione e selezione dei trend.
 4. Generazione delle idee per meme.
 5. Valutazione delle idee.
-6. Revisione delle idee non approvate, con una nuova valutazione.
+6. Revisione delle idee non approvate e nuova valutazione.
 
-Il workflow gestisce automaticamente il ciclo di revisione e interrompe i tentativi al raggiungimento del limite configurato.
+Il workflow gestisce il ciclo di revisione e interrompe i tentativi al raggiungimento del limite configurato.
 
 ## Tecnologie utilizzate
 
 | Tecnologia | Utilizzo |
 |---|---|
-| Python | Linguaggio principale |
+| Python | Linguaggio principale del prototipo |
 | LangGraph | Orchestrazione del workflow multi-agente |
 | LangChain | Integrazione con i modelli linguistici |
 | OpenAI API | Generazione e valutazione dei contenuti |
 | Tavily API | Ricerca online dei trend |
 | unittest | Test automatici |
 
-## Installazione
+## Installazione e configurazione
 
-Clonare il repository:
+### Prerequisiti
+
+- Python
+- Git
+- Chiavi API per i servizi esterni utilizzati
+
+### Clonazione del repository
 
 ```bash
 git clone https://github.com/TanoBont/meme-agent.git
 cd meme-agent
 ```
 
-Creare un ambiente virtuale:
+### Creazione dell'ambiente virtuale
 
 ```bash
 python -m venv .venv
 ```
 
-Attivarlo su Windows:
+Su Windows, attivazione dell'ambiente:
 
 ```powershell
 .venv\Scripts\Activate.ps1
 ```
 
-Installare le dipendenze:
+### Installazione delle dipendenze
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Configurazione
+### Configurazione delle variabili d'ambiente
 
 Creare un file `.env` nella directory principale del progetto, utilizzando `.env.example` come riferimento.
 
-Configurare le proprie chiavi API:
+Le principali variabili utilizzate sono:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
 TAVILY_API_KEY=your_tavily_api_key
 ```
 
-Le altre impostazioni disponibili sono:
+Le altre impostazioni, come modello AI, numero massimo di revisioni e numero di trend da selezionare, possono essere configurate in base alle variabili supportate dal progetto.
 
-```env
-OPENAI_MODEL=gpt-6.1-sol
-MAX_REVISIONS=2
-MAX_TRENDS=5
-```
-
-- `OPENAI_MODEL`: modello OpenAI utilizzato dal sistema.
-- `MAX_REVISIONS`: numero massimo di revisioni consentite per le idee non approvate.
-- `MAX_TRENDS`: numero massimo di trend selezionati nella fase di classificazione.
+**Nota:** il file `.env` contiene credenziali private e non deve essere pubblicato o incluso nei commit Git.
 
 ## Esecuzione
 
-Per avviare il sistema:
+Per avviare il prototipo:
 
 ```bash
 python main.py
 ```
 
-Al termine dell'esecuzione vengono mostrati i trend individuati, quelli verificati e classificati, le idee generate e le relative valutazioni, insieme a un riepilogo dell'esecuzione.
+Al termine dell'esecuzione vengono mostrati i trend individuati, quelli verificati e classificati, le idee generate e le relative valutazioni, insieme a un riepilogo del processo.
 
 ## Test
 
@@ -154,12 +183,132 @@ Per eseguire la suite:
 python -m unittest discover -s tests -v
 ```
 
-I test che richiedono chiamate a servizi esterni vengono eseguiti separatamente.
+I test che richiedono chiamate a servizi esterni vengono gestiti separatamente.
 
-## Stato del progetto
+## Progettazione della piattaforma
 
-Il progetto è attualmente in fase di sviluppo.
+L'evoluzione prevista consiste nella realizzazione di una piattaforma web modulare, multiutente e assistita dall'intelligenza artificiale.
 
-La pipeline multi-agente è stata implementata e comprende ricerca, verifica preliminare, classificazione, generazione, valutazione e revisione delle idee.
+### Architettura target
 
-Tra i possibili sviluppi futuri rientrano la generazione automatica delle immagini dei meme, l'integrazione di ulteriori fonti di ricerca e lo sviluppo di un'interfaccia utente.
+La progettazione prevede l'utilizzo delle seguenti tecnologie:
+
+| Tecnologia | Responsabilità prevista |
+|---|---|
+| Next.js, React e TypeScript | Frontend web |
+| FastAPI | Backend e API REST |
+| Python e LangGraph | Orchestrazione dei workflow AI |
+| OpenAI API | Servizi di intelligenza artificiale |
+| PostgreSQL e pgvector | Database e ricerca vettoriale |
+| Pillow | Elaborazione e composizione delle immagini |
+| Docker | Containerizzazione e ambiente di sviluppo |
+
+Queste tecnologie rappresentano l'architettura target e non descrivono lo stack già implementato nel prototipo.
+
+### Domini funzionali
+
+La piattaforma è stata suddivisa nei seguenti domini:
+
+1. Identity & Access
+2. Asset Management
+3. Football Catalog
+4. Discover
+5. Meme Studio
+6. Library
+7. Knowledge Base & RAG
+8. AI Usage
+9. Governance & Protection
+
+Sono inoltre previste funzionalità trasversali per notifiche, moderazione, processi asincroni, configurazione e osservabilità.
+
+### Principi architetturali
+
+La progettazione segue alcuni principi fondamentali:
+
+- Modular Monolith come architettura iniziale.
+- Separazione delle responsabilità tra domini.
+- API REST versionate.
+- Gestione centralizzata degli asset.
+- Isolamento dei dati tra utenti.
+- Sicurezza e privacy integrate fin dalla progettazione.
+- Monitoraggio dell'utilizzo e dei costi dei servizi AI.
+- Test automatici e qualità del codice.
+- Possibilità di evoluzione progressiva senza introdurre complessità prematura.
+
+## Documentazione
+
+La documentazione tecnica è organizzata in due aree.
+
+### Prototipo attuale
+
+I documenti nella cartella `docs/` descrivono il funzionamento dell'applicazione Python già sviluppata:
+
+- `agents.md`
+- `architecture.md`
+- `configuration.md`
+- `workflow.md`
+
+### Progettazione della piattaforma
+
+La cartella `docs/platform/` contiene la documentazione architetturale e progettuale della futura piattaforma web:
+
+| Documento | Contenuto |
+|---|---|
+| `00-overview.md` | Panoramica e obiettivi |
+| `01-requirements.md` | Requisiti funzionali e non funzionali |
+| `02-architecture.md` | Architettura software |
+| `03-domain-model.md` | Modello concettuale dei dati |
+| `04-workflows.md` | Workflow applicativi |
+| `05-security-privacy-governance.md` | Sicurezza, privacy e governance |
+| `06-data-integrity.md` | Integrità e gestione dei dati |
+| `07-testing-quality.md` | Testing e qualità |
+| `08-operations.md` | Aspetti operativi |
+| `09-roadmap.md` | Roadmap evolutiva |
+| `10-decisions-register.md` | Registro delle decisioni architetturali |
+| `11-open-items.md` | Questioni ancora aperte |
+
+La documentazione distingue le funzionalità implementate da quelle progettate o pianificate.
+
+## Roadmap
+
+Lo sviluppo futuro è organizzato per fasi:
+
+**Fase 1 – Progettazione tecnica**
+
+- Consolidamento del modello ER.
+- Definizione dello schema PostgreSQL.
+- Progettazione delle API REST.
+- Definizione dettagliata dell'architettura applicativa.
+- Delimitazione delle funzionalità MVP.
+
+**Fase 2 – MVP**
+
+- Setup dell'architettura applicativa.
+- Implementazione di autenticazione e gestione utenti.
+- Gestione centralizzata degli asset.
+- Prime funzionalità Discover.
+- Prime funzionalità Meme Studio.
+- Libreria personale ed esportazione dei meme.
+
+**Fase 3 – Beta ed evoluzione**
+
+- Miglioramento delle funzionalità AI.
+- Evoluzione del sistema RAG.
+- Miglioramento dell'editor.
+- Funzionalità avanzate e personalizzazione.
+- Test, sicurezza e ottimizzazione.
+
+**Fase 4 – Release pubblica**
+
+- Consolidamento operativo.
+- Scalabilità e affidabilità.
+- Funzionalità community e servizi aggiuntivi.
+- Valutazione di ulteriori integrazioni.
+
+La roadmap è indicativa e potrà essere aggiornata durante lo sviluppo.
+
+---
+
+## Obiettivo finale
+
+Realizzare una piattaforma che unisca intelligenza artificiale, automazione e creatività, offrendo agli appassionati di calcio uno strumento per trasformare eventi e notizie in contenuti originali e divertenti.
